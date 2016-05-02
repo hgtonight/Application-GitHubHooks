@@ -17,21 +17,25 @@ class GitBotController extends Gdn_Controller {
     $requestBody = file_get_contents('php://input');
     $data = json_decode($requestBody);
 
-    Logger::log(Logger::INFO, 'action', (array)$data->action);
-    if(property_exists($data, 'action') && $data->action == 'opened') {
-        Logger::log(Logger::INFO, 'pull_request', (array)$data->pull_request);
-        $pr = property_exists($data, 'pull_request') ? $data->pull_request : false;
-        Logger::log(Logger::INFO, 'pr', (array)$pr);
-        if($pr) {
-            Logger::log(Logger::INFO, 'user', (array)$pr->user);
-            $user = property_exists($pr, 'user') ? $pr->user : false;
-            if($user) {
-                Logger::log(Logger::INFO, 'name', (array)$user->login);
-            }
-        }
-    }
+    $gitHubName = $this->getPullRequestSubmitterName($data);
+    Logger::log(Logger::INFO, 'GitHubName', $gitHubName);
     
+    $userModel = new UserModel();
+    $user = $userModel->getByUsername($gitHubName);
+    
+    Logger::log(Logger::INFO, 'VanillaUser', $user);
     $this->index();
   }
 
+  private function getPullRequestSubmitterName($data) {
+    $name = null;
+    if(property_exists($data, 'action') && $data->action == 'opened') {
+      $pr = property_exists($data, 'pull_request') ? $data->pull_request : false;
+      if($pr) {
+        $user = property_exists($pr, 'user') ? $pr->user : false;
+        $name = (property_exists($user, 'login')) ? $user->login : null;
+      }
+    }
+    return $name;
+  }
 }
