@@ -23,7 +23,7 @@ class GitBotController extends Gdn_Controller {
     $userModel = new UserModel();
     $user = $userModel->getByUsername($gitHubName);
     
-    Logger::log(Logger::INFO, 'VanillaUser', $user);
+    Logger::log(Logger::INFO, 'VanillaUser', (array)$user);
     $this->index();
   }
 
