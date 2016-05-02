@@ -14,17 +14,18 @@ class GitBotController extends Gdn_Controller {
   }
   
   public function pullRequest() {
-    $requestBody = file_get_contents('php://input');
-    $data = json_decode($requestBody);
+    $data = json_decode(file_get_contents('php://input'));
 
     $gitHubName = $this->getPullRequestSubmitterName($data);
-    Logger::log(Logger::INFO, 'GitHubName', (array)$gitHubName);
     
     $userModel = new UserModel();
     $user = $userModel->getByUsername($gitHubName);
     
-    Logger::log(Logger::INFO, 'VanillaUser', (array)$user);
     $signed = !!val('DateContributorAgreement', $user);
+    
+    $existingComments = json_decode(file_get_contents('https://api.github.com/repos/vanilla/vanilla/pulls/1/comments'));
+    
+    Logger::log(Logger::INFO, 'ExistingComments', (array)$existingComments);
     
     $this->renderData(['signed' => $signed]);
   }
