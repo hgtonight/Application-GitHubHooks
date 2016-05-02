@@ -17,8 +17,17 @@ class GitBotController extends Gdn_Controller {
     $requestBody = file_get_contents('php://input');
     $data = json_decode($requestBody);
 
+    if(property_exists($data, 'action') && $data->action == 'opened') {
+        $pr = property_exists($data, 'pull_request') ? $data->pull_request : false;
+        if($pr) {
+            $user = property_exists($pr, 'user') ? $data->pull_request : false;
+            if($user) {
+                Logger::log(Logger::INFO, $user->login);
+            }
+        }
+    }
     
-    Logger::log(Logger::INFO, $data);
     $this->index();
   }
+
 }
