@@ -19,14 +19,14 @@ class GitBotController extends Gdn_Controller {
 
     Logger::log(Logger::INFO, 'action', $data->action);
     if(property_exists($data, 'action') && $data->action == 'opened') {
-        Logger::log(Logger::INFO, 'pull_request', $data->pull_request);
+        Logger::log(Logger::INFO, 'pull_request', (array)$data->pull_request);
         $pr = property_exists($data, 'pull_request') ? $data->pull_request : false;
-        Logger::log(Logger::INFO, 'pr', $pr);
+        Logger::log(Logger::INFO, 'pr', (array)$pr);
         if($pr) {
-            Logger::log(Logger::INFO, 'user', $pr->user);
+            Logger::log(Logger::INFO, 'user', (array)$pr->user);
             $user = property_exists($pr, 'user') ? $data->user : false;
             if($user) {
-                Logger::log(Logger::INFO, 'name', $user->login);
+                Logger::log(Logger::INFO, 'name', (array)$user->login);
             }
         }
     }
