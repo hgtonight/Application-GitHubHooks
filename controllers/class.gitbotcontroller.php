@@ -14,7 +14,11 @@ class GitBotController extends Gdn_Controller {
   }
   
   public function pullRequest() {
-    Logger::log(Logger::INFO, 'RequestArgs', Gdn::request()->getRequestArguments());
+    $requestBody = file_get_contents('php://input');
+    $data = json_decode($requestBody);
+
+    
+    Logger::log(Logger::INFO, $data);
     $this->index();
   }
 }
