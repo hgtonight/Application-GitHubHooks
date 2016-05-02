@@ -18,7 +18,7 @@ class GitBotController extends Gdn_Controller {
     $data = json_decode($requestBody);
 
     $gitHubName = $this->getPullRequestSubmitterName($data);
-    Logger::log(Logger::INFO, 'GitHubName', $gitHubName);
+    Logger::log(Logger::INFO, 'GitHubName', (array)$gitHubName);
     
     $userModel = new UserModel();
     $user = $userModel->getByUsername($gitHubName);
