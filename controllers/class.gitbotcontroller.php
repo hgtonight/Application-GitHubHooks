@@ -24,16 +24,18 @@ class GitBotController extends Gdn_Controller {
     $user = $userModel->getByUsername($gitHubName);
     
     Logger::log(Logger::INFO, 'VanillaUser', (array)$user);
-    $this->index();
+    $signed = !!val('DateContributorAgreement', $user);
+    
+    $this->renderData(['signed' => $signed]);
   }
 
   private function getPullRequestSubmitterName($data) {
     $name = null;
-    if(property_exists($data, 'action') && $data->action == 'opened') {
-      $pr = property_exists($data, 'pull_request') ? $data->pull_request : false;
+    $action = val('action', $data);
+    if($action == 'opened') {
+      $pr = val('pull_request', $data);
       if($pr) {
-        $user = property_exists($pr, 'user') ? $pr->user : false;
-        $name = (property_exists($user, 'login')) ? $user->login : null;
+        $name = valr('user.login', $pr);
       }
     }
     return $name;
