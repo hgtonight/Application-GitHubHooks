@@ -3,7 +3,7 @@
 
 class FileLogger extends BaseLogger {
     
-    private $logfile = 'uploads/var/log.log';
+    private $logfile = PATH_UPLOADS . '/var/log.log';
 
     public function log($level, $message, array $context = array()) {
         $log = $level . "\n";
