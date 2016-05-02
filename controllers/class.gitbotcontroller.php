@@ -24,7 +24,7 @@ class GitBotController extends Gdn_Controller {
         Logger::log(Logger::INFO, 'pr', (array)$pr);
         if($pr) {
             Logger::log(Logger::INFO, 'user', (array)$pr->user);
-            $user = property_exists($pr, 'user') ? $data->user : false;
+            $user = property_exists($pr, 'user') ? $pr->user : false;
             if($user) {
                 Logger::log(Logger::INFO, 'name', (array)$user->login);
             }
