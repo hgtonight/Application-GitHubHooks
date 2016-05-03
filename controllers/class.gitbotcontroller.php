@@ -41,6 +41,7 @@ class GitBotController extends Gdn_Controller {
   }
   
   private function commentOnSignedStatus($data, $alreadySigned) {
+    $token = c('githubhooks.oauthToken');
     require_once(PATH_APPLICATIONS . '/githubhooks/library/client/GitHubClient.php');
     $body = "It doesn't appear that you have signed the CLA.";
     if($alreadySigned) {
@@ -51,7 +52,8 @@ class GitBotController extends Gdn_Controller {
     Logger::log(Logger::INFO, 'Issue Number', (array)$issue);
     if($issue) {
       $client = new GitHubClient();
-      $client->setCredentials($username, $password);
+      $client->setAuthType(GitHubClient::GITHUB_AUTH_TYPE_OAUTH);
+      $client->setOauthToken($token);
       $client->issues->comments->createComment('vanilla', 'vanilla', $issue, $body);
     }
   }
