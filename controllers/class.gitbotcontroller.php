@@ -41,7 +41,7 @@ class GitBotController extends Gdn_Controller {
   }
   
   private function commentOnSignedStatus($data, $alreadySigned) {
-    require_once(PATH_APPLICATIONS . '/library/client/GitHubClient.php');
+    require_once(PATH_APPLICATIONS . '/githubhooks/library/client/GitHubClient.php');
     $body = "It doesn't appear that you have signed the CLA.";
     if($alreadySigned) {
         $body = "It appears you have already signed the CLA.";
