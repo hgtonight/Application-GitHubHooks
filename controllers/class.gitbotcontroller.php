@@ -23,9 +23,7 @@ class GitBotController extends Gdn_Controller {
     
     $signed = !!val('DateContributorAgreement', $user);
     
-    $existingComments = json_decode(file_get_contents('https://api.github.com/repos/vanilla/vanilla/pulls/1/comments'));
-    
-    Logger::log(Logger::INFO, 'ExistingComments', (array)$existingComments);
+    $this->commentOnSignedStatus($data, $signed);
     
     $this->renderData(['signed' => $signed]);
   }
@@ -40,5 +38,20 @@ class GitBotController extends Gdn_Controller {
       }
     }
     return $name;
+  }
+  
+  private function commentOnSignedStatus($data, $alreadySigned) {
+    $body = "It doesn't appear that you have signed the CLA.";
+    if($alreadySigned) {
+        $body = "It appears you have already signed the CLA.";
+    }
+    
+    $issue = valr('pull_request.number', $data, false);
+
+    if($issue) {
+      $client = new GitHubClient();
+      $client->setCredentials($username, $password);
+      $client->issues->createComment('vanilla', 'vanilla', $issue, $body);
+    }
   }
 }
