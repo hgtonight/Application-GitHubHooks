@@ -21,7 +21,7 @@ class GitBotController extends Gdn_Controller {
     
     $signed = !!val('DateContributorAgreement', $user);
     
-    $this->commentOnSignedStatus($data, $signed, $user);
+    $this->commentOnSignedStatus($data, $signed, $gitHubName);
     
     $this->renderData(['signed' => $signed]);
   }
