@@ -41,13 +41,14 @@ class GitBotController extends Gdn_Controller {
   }
   
   private function commentOnSignedStatus($data, $alreadySigned) {
+    require_once(PATH_APPLICATIONS . 'library/client/GitHubClient.php');
     $body = "It doesn't appear that you have signed the CLA.";
     if($alreadySigned) {
         $body = "It appears you have already signed the CLA.";
     }
     
     $issue = valr('pull_request.number', $data, false);
-
+    Logger::log(Logger::INFO, 'Issue Number', (array)$issue);
     if($issue) {
       $client = new GitHubClient();
       $client->setCredentials($username, $password);
