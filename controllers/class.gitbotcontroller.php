@@ -3,8 +3,6 @@
 
 class GitBotController extends Gdn_Controller {
 
-  private $secret = '77f13866b4164c0c45d35f76d92339210db5d5e78fba9756f8cacd7f0f940849';
-  
   public function Initialize() {
     parent::Initialize();
   }
@@ -23,7 +21,7 @@ class GitBotController extends Gdn_Controller {
     
     $signed = !!val('DateContributorAgreement', $user);
     
-    $this->commentOnSignedStatus($data, $signed);
+    $this->commentOnSignedStatus($data, $signed, $user);
     
     $this->renderData(['signed' => $signed]);
   }
@@ -40,12 +38,17 @@ class GitBotController extends Gdn_Controller {
     return $name;
   }
   
-  private function commentOnSignedStatus($data, $alreadySigned) {
-    $token = c('githubhooks.oauthToken');
+  private function commentOnSignedStatus($data, $alreadySigned, $name) {
     require_once(PATH_APPLICATIONS . '/githubhooks/library/client/GitHubClient.php');
-    $body = "It doesn't appear that you have signed the CLA.";
+    $token = c('GitHubHooks.OAuthToken');
+    $repoOwner = c('GitHubHooks.RepoOwner');
+    $repoName = c('GitHubHooks.RepoName');
+    $body = '';
     if($alreadySigned) {
-        $body = "It appears you have already signed the CLA.";
+        $body .= sprintf(t("**%s** appears to have already signed the contributor's agreement."), $name);
+    }
+    else {
+        $body .= sprintf(t("Can you sign our contributor's agreement @%s? http://vanillaforums.org/contributors"), $name);
     }
     
     $issue = valr('pull_request.number', $data, false);
@@ -54,7 +57,7 @@ class GitBotController extends Gdn_Controller {
       $client = new GitHubClient();
       $client->setAuthType(GitHubClient::GITHUB_AUTH_TYPE_OAUTH);
       $client->setOauthToken($token);
-      $client->issues->comments->createComment('vanilla', 'vanilla', $issue, $body);
+      $client->issues->comments->createComment($repoOwner, $repoName, $issue, $body);
     }
   }
 }
