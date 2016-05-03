@@ -52,7 +52,7 @@ class GitBotController extends Gdn_Controller {
     if($issue) {
       $client = new GitHubClient();
       $client->setCredentials($username, $password);
-      $client->issues->createComment('vanilla', 'vanilla', $issue, $body);
+      $client->issues->comments->createComment('vanilla', 'vanilla', $issue, $body);
     }
   }
 }
