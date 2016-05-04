@@ -63,9 +63,6 @@ class GitBotController extends Gdn_Controller {
   }
   
   private function commentOnSignedStatus($data, $alreadySigned, $name) {
-    $token = c('GitHubHooks.OAuthToken');
-    $repoOwner = c('GitHubHooks.RepoOwner');
-    $repoName = c('GitHubHooks.RepoName');
     $body = '';
     if($alreadySigned) {
         $body .= sprintf(t("**%s** appears to have already signed the contributor's agreement."), $name);
@@ -74,13 +71,15 @@ class GitBotController extends Gdn_Controller {
         $body .= sprintf(t("Can you sign our contributor's agreement @%s? http://vanillaforums.org/contributors"), $name);
     }
     
-    $issue = valr('pull_request.number', $data, false);
+    $issue = valr('pull_request.number', $data);
+    $repoOwner = valr('repository.owner.login', $data);
+    $repoName = valr('repository.name', $data);
     
-    if($issue) {
+    if($issue && $repoOwner && $repoName) {
       require_once(PATH_APPLICATIONS . '/githubhooks/library/client/GitHubClient.php');
       $client = new GitHubClient();
       $client->setAuthType(GitHubClient::GITHUB_AUTH_TYPE_OAUTH);
-      $client->setOauthToken($token);
+      $client->setOauthToken(c('GitHubHooks.OAuthToken'));
       $client->issues->comments->createComment($repoOwner, $repoName, $issue, $body);
     }
   }
