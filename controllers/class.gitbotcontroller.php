@@ -63,7 +63,6 @@ class GitBotController extends Gdn_Controller {
   }
   
   private function commentOnSignedStatus($data, $alreadySigned, $name) {
-    require_once(PATH_APPLICATIONS . '/githubhooks/library/client/GitHubClient.php');
     $token = c('GitHubHooks.OAuthToken');
     $repoOwner = c('GitHubHooks.RepoOwner');
     $repoName = c('GitHubHooks.RepoName');
@@ -76,8 +75,9 @@ class GitBotController extends Gdn_Controller {
     }
     
     $issue = valr('pull_request.number', $data, false);
-    Logger::log(Logger::INFO, 'Issue Number', (array)$issue);
+    
     if($issue) {
+      require_once(PATH_APPLICATIONS . '/githubhooks/library/client/GitHubClient.php');
       $client = new GitHubClient();
       $client->setAuthType(GitHubClient::GITHUB_AUTH_TYPE_OAUTH);
       $client->setOauthToken($token);
