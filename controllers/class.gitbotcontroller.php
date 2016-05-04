@@ -22,10 +22,24 @@ class GitBotController extends Gdn_Controller {
     $data = json_decode($payload);
 
     $action = val('action', $data);
-    if($action !== 'opened') {
-      return;
+    switch($action) {
+      case 'opened':
+        $this->pullRequestOpened($data);
+        break;
+      default:
+        $this->renderData(['hookReceived' => true]);
+        break;
     }
-    
+  }
+  
+  private function verifySignature($payload) {
+    $secret = c('GitHubHooks.PullRequestSecret');
+    $expected = Gdn::request()->getValue('HTTP_X_HUB_SIGNATURE');
+    $calculated = 'sha1=' . hash_hmac('sha1', $payload , $secret);
+    return compareHashDigest($expected, $calculated);
+  }
+  
+  private function pullRequestOpened($data) {
     $gitHubName = $this->getPullRequestSubmitterName($data);
     
     $userModel = new UserModel();
@@ -35,7 +49,7 @@ class GitBotController extends Gdn_Controller {
     
     $this->commentOnSignedStatus($data, $signed, $gitHubName);
     
-    $this->renderData(['signed' => $signed]);
+    $this->renderData(['hookReceived' => true, 'claSigned' => $signed]);
   }
 
   private function getPullRequestSubmitterName($data) {
@@ -69,12 +83,5 @@ class GitBotController extends Gdn_Controller {
       $client->setOauthToken($token);
       $client->issues->comments->createComment($repoOwner, $repoName, $issue, $body);
     }
-  }
-  
-  private function verifySignature($payload) {
-    $secret = c('GitHubHooks.PullRequestSecret');
-    $expected = Gdn::request()->getValue('HTTP_X_HUB_SIGNATURE');
-    $calculated = 'sha1=' . hash_hmac('sha1', $payload , $secret);
-    return compareHashDigest($expected, $calculated);
   }
 }
