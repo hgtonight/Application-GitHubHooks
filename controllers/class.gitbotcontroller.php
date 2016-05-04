@@ -15,7 +15,7 @@ class GitBotController extends Gdn_Controller {
     $payload = file_get_contents('php://input');
     if(!$this->verifySignature($payload)) {
       Logger::event('SignatureInvalid', Logger::EMERGENCY, 'HMAC does not match!');
-      $this->renderData(['error' => 'invalid request']);
+      $this->renderData(['hookReceived' => false, 'error' => 'Invalid Signature']);
       return;
     }
     
