@@ -21,6 +21,11 @@ class GitBotController extends Gdn_Controller {
     
     $data = json_decode($payload);
 
+    $action = val('action', $data);
+    if($action !== 'opened') {
+      return;
+    }
+    
     $gitHubName = $this->getPullRequestSubmitterName($data);
     
     $userModel = new UserModel();
@@ -35,13 +40,11 @@ class GitBotController extends Gdn_Controller {
 
   private function getPullRequestSubmitterName($data) {
     $name = null;
-    $action = val('action', $data);
-    if($action == 'opened') {
-      $pr = val('pull_request', $data);
-      if($pr) {
-        $name = valr('user.login', $pr);
-      }
+    $pr = val('pull_request', $data);
+    if($pr) {
+      $name = valr('user.login', $pr);
     }
+    
     return $name;
   }
   
@@ -72,8 +75,6 @@ class GitBotController extends Gdn_Controller {
     $secret = c('GitHubHooks.PullRequestSecret');
     $expected = Gdn::request()->getValue('HTTP_X_HUB_SIGNATURE');
     $calculated = 'sha1=' . hash_hmac('sha1', $payload , $secret);
-    Logger::log(Logger::INFO, 'expected', (array)$expected);
-    Logger::log(Logger::INFO, 'calculated', (array)$calculated);    
     return compareHashDigest($expected, $calculated);
   }
 }
