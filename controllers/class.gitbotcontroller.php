@@ -16,6 +16,7 @@ class GitBotController extends Gdn_Controller {
     if(!$this->verifySignature($payload)) {
       Logger::event('SignatureInvalid', Logger::EMERGENCY, 'HMAC does not match!');
       $this->renderData(['error' => 'invalid request']);
+      return;
     }
     
     $data = json_decode($payload);
@@ -69,7 +70,7 @@ class GitBotController extends Gdn_Controller {
   
   private function verifySignature($payload) {
     $secret = c('GitHubHooks.PullRequestSecret');
-    $expected = Gdn::request()->getValue('X-Hub-Signature');
+    $expected = Gdn::request()->getValue('HTTP_X_HUB_SIGNATURE');
     $calculated = 'sha1=' . hash_hmac('sha1', $payload , $secret);
     Logger::log(Logger::INFO, 'expected', (array)$expected);
     Logger::log(Logger::INFO, 'calculated', (array)$calculated);    
