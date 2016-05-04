@@ -12,7 +12,13 @@ class GitBotController extends Gdn_Controller {
   }
   
   public function pullRequest() {
-    $data = json_decode(file_get_contents('php://input'));
+    $payload = file_get_contents('php://input');
+    if(!$this->verifySignature($payload)) {
+      Logger::event('SignatureInvalid', Logger::EMERGENCY, 'HMAC does not match!');
+      $this->renderData(['error' => 'invalid request']);
+    }
+    
+    $data = json_decode($payload);
 
     $gitHubName = $this->getPullRequestSubmitterName($data);
     
@@ -59,5 +65,14 @@ class GitBotController extends Gdn_Controller {
       $client->setOauthToken($token);
       $client->issues->comments->createComment($repoOwner, $repoName, $issue, $body);
     }
+  }
+  
+  private function verifySignature($payload) {
+    $secret = c('GitHubHooks.PullRequestSecret');
+    $expected = Gdn::request()->getValue('X-Hub-Signature');
+    $calculated = 'sha1=' . hash_hmac('sha1', $payload , $secret);
+    Logger::log(Logger::INFO, 'expected', (array)$expected);
+    Logger::log(Logger::INFO, 'calculated', (array)$calculated);    
+    return compareHashDigest($expected, $calculated);
   }
 }
